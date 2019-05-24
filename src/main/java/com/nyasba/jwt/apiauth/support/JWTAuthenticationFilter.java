@@ -56,8 +56,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             return authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             userForm.getLoginId(),
-                            userForm.getPass(),
-                            new ArrayList<>())
+                            userForm.getPass())
             );
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
@@ -73,8 +72,10 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             FilterChain chain,
                                             Authentication auth) throws IOException, ServletException {
         // loginIdからtokenを設定してヘッダにセットする
+    	User user = (User)auth.getPrincipal();
         String token = Jwts.builder()
-                .setSubject(((User)auth.getPrincipal()).getUsername()) // usernameだけを設定する
+                .setSubject(user.getUsername())
+                .claim("role", user.getAuthorities())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
                 .compact();
