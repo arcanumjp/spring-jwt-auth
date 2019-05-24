@@ -52,6 +52,8 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         try {
             // requestパラメータからユーザ情報を読み取る
             UserForm userForm = new ObjectMapper().readValue(req.getInputStream(), UserForm.class);
+            
+            // TODO ここでID/PASSの検証を行い、ダメならUsernameNotFoundExceptionをスロー
 
             return authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -73,8 +75,10 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             FilterChain chain,
                                             Authentication auth) throws IOException, ServletException {
         // loginIdからtokenを設定してヘッダにセットする
+    	User user = (User)auth.getPrincipal();
         String token = Jwts.builder()
-                .setSubject(((User)auth.getPrincipal()).getUsername()) // usernameだけを設定する
+                .setSubject(user.getUsername()) // usernameだけを設定する
+                .claim("role", user.getAuthorities())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
                 .compact();
