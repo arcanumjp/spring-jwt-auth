@@ -42,7 +42,7 @@ public class SampleController {
         // JWTAuthenticationFilter#successfulAuthenticationで設定したusernameを取り出す
         String username = (String) (authentication.getPrincipal());
 
-        return "this is private for " + username + " auth: " + authentication.getAuthorities();
+        return "this is private for " + username;
     }
 
     @PostMapping(value = SIGNUP_URL)
@@ -53,20 +53,6 @@ public class SampleController {
 
         // DBに保存する処理を本来は書く
         LOGGER.info("signup :" + user.toString());
-    }
-
-    @GetMapping(value = "/user/myurl")
-    public String myurl() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = (String) (authentication.getPrincipal());
-        return "this is /user/myurl for " + username + " auth: " + authentication.getAuthorities();
-    }
-
-    @GetMapping(value = "/admin")
-    public String admin() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = (String) (authentication.getPrincipal());
-        return "this is /admin for " + username + " auth: " + authentication.getAuthorities();
     }
 
 }

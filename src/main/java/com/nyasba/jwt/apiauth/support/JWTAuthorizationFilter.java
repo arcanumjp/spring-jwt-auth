@@ -1,12 +1,8 @@
 package com.nyasba.jwt.apiauth.support;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
@@ -16,8 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 import static com.nyasba.jwt.apiauth.support.SecurityConstants.HEADER_STRING;
 import static com.nyasba.jwt.apiauth.support.SecurityConstants.SECRET;
@@ -51,28 +45,15 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
         String token = request.getHeader(HEADER_STRING);
         if (token != null) {
-        	
-        	token = token.replace(HEADER_STRING, "");
-        	token = token.replace(TOKEN_PREFIX, "").trim();
-        	
-        	System.out.println("token: " + token);
-        	
-        	JwtParser parser = Jwts.parser().setSigningKey(SECRET.getBytes());
-        	Claims claims = parser.parseClaimsJws(token).getBody();
-        	
-        	String user = claims.getSubject();
-        	
-        	List grants = (List) claims.get("role");
-        	String[] arrayRole = new String[grants.size()];
-        	for (int i = 0 ; i < grants.size(); i++) {
-        		LinkedHashMap grant = (LinkedHashMap) grants.get(i);
-        		String rolestr = (String) grant.get("authority");
-        		arrayRole[i] = rolestr;
-        	}
-        	List<GrantedAuthority> roles = AuthorityUtils.createAuthorityList(arrayRole);
+            // parse the token.
+            String user = Jwts.parser()
+                    .setSigningKey(SECRET.getBytes())
+                    .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+                    .getBody()
+                    .getSubject();
 
-        	if (user != null) {
-                return new UsernamePasswordAuthenticationToken(user, null, roles);
+            if (user != null) {
+                return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
             }
             return null;
         }
