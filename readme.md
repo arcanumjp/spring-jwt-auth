@@ -2,6 +2,9 @@
 
 Spring APIの認証をJWT(JsonWebToken)で実装したサンプルです
 
+※次のエントリで公開されているリポジトリのフォークです
+https://qiita.com/nyasba/items/f9b1b6be5540743f8bac
+
 #### 起動
 
 ```
